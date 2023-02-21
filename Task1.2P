@@ -1,0 +1,21 @@
+// Initializing the pins to which sensor and actuator is connecetd
+int sensorpin = 2;
+int motorpin = 3;
+volatile int currentstate = LOW;
+
+
+void setup() {     
+  pinMode(sensorpin, INPUT);   // setting the pin mode as input
+  pinMode(motorpin, OUTPUT);   // setting the pin mode as output
+  Serial.begin(9600);		   // Starting the serial monitor
+  attachInterrupt(digitalPinToInterrupt(sensorpin), toggle, RISING);   // adding an interrupt
+}
+
+void loop() {
+  
+}
+
+void toggle(){
+  currentstate = !currentstate;
+  digitalWrite(motorpin, currentstate);
+}
