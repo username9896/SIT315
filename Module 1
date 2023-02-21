@@ -1,0 +1,22 @@
+// Initializing the pins to which sensor and actuator is connecetd
+int sensorpin = 6;
+int motorpin = 3;
+
+void setup() {
+pinMode (sensorpin, INPUT); // setting the pin mode as input
+pinMode (motorpin, OUTPUT); // setting the pin mode as output
+Serial.begin(9600); // Starting the serial monitor.
+}
+
+void loop() {
+  int current state = digitalRead (sensorpin); // Taking the input
+
+  if (current state == HIGH) // if it detects the motion then
+  {
+    digitalWrite (motorpin, HIGH); // motor will be high
+  }
+  else
+  {
+    digitalWrite (motorpin, LOW); // motor will be low
+  }
+}
