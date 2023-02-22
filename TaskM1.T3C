@@ -1,0 +1,29 @@
+// Initializing the pins to which sensor and actuator is connecetd
+int sensorpin = 2;
+int motorpin = 4;
+volatile int currentstate = LOW;
+const int soilMoisturePin = 3;
+volatile bool isSensorTriggered = false;
+
+void setup() {     
+  pinMode(sensorpin, INPUT);   // setting the pin mode as input
+  pinMode(motorpin, OUTPUT); 
+  pinMode(soilMoisturePin, INPUT);
+  Serial.begin(9600);		   // Starting the serial monitor
+  attachInterrupt(digitalPinToInterrupt(soilMoisturePin), togglemotor, RISING);
+  attachInterrupt(digitalPinToInterrupt(sensorpin), toggle, RISING);
+}
+
+void loop() {
+  
+}
+
+void togglemotor () {
+  isSensorTriggered = !isSensorTriggered;
+  digitalWrite(motorpin, HIGH);
+}
+
+void toggle(){
+  currentstate = !currentstate;
+  digitalWrite(motorpin, currentstate);
+}
