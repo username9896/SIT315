@@ -1,0 +1,90 @@
+// Initializing the pins to which sensor and actuator is connecetd
+int motionsensor1pin = 8;
+int motionsensor2pin = A4;
+const int soilMoisturePin = 6;
+int ledpin = 4;
+int greenledpin = 9;
+int blueledpin = 10;
+int redledpin = 11;
+volatile int currentstate1 = LOW;
+volatile int currentstate2 = LOW;
+volatile bool isSensorTriggered = false;
+
+void setup() {     
+  pinMode(motionsensor1pin, INPUT);   // setting the pin mode as input
+  pinMode(motionsensor2pin, INPUT);
+  pinMode(soilMoisturePin, INPUT);
+  pinMode(greenledpin, OUTPUT);
+  pinMode(blueledpin, OUTPUT);
+  pinMode(redledpin, OUTPUT);
+  pinMode(ledpin, OUTPUT);
+  startTimerfunc(2);
+  Serial.begin(9600);		   // Starting the serial monitor
+  
+  pciSetup(8);
+  pciSetup(6);
+  pciSetup(A4);
+}
+
+void startTimerfunc(double freq) {
+  cli();
+  TCCR1A = 0;
+  TCCR1B = 0;
+  TCNT1 = 0;
+  
+  // freq = clock_speed / (prescaler * (1 + OCR1A));
+  // OCR1A = (clock_speed / (prescaler * freq)) - 1;
+  
+  OCR1A = 31249;
+  TCCR1B |= (1 << WGM12);
+  TCCR1B |= (1 << CS12) | (0 << CS11) | (1 << CS10);
+  TIMSK1 |= (1 << OCIE1A);
+  sei(); }
+
+ISR(TIMER1_COMPA_vect) {
+   digitalWrite(ledpin, digitalRead(ledpin) ^ 1); 
+}
+
+void pciSetup(byte pin)
+{
+    *digitalPinToPCMSK(pin) |= bit (digitalPinToPCMSKbit(pin));
+    PCIFR  |= bit (digitalPinToPCICRbit(pin));
+    PCICR  |= bit (digitalPinToPCICRbit(pin));
+}
+
+void loop() {
+  
+}
+
+ISR (PCINT0_vect) 
+{    
+  toggleblueled();
+}
+ 
+ISR (PCINT1_vect) 
+{
+  togglegreenled();
+}
+
+ISR (PCINT2_vect)
+{
+  toggleredled();
+}
+
+void toggleredled() {
+  isSensorTriggered = !isSensorTriggered;
+  digitalWrite(redledpin, isSensorTriggered);
+  Serial.println("Soil Moisture sensor detect interrupt");
+}
+
+void toggleblueled(){
+  currentstate1 = !currentstate1;
+  digitalWrite(blueledpin, currentstate1);
+  Serial.println("Motion detected from sensor 2");
+}
+
+void togglegreenled(){
+  currentstate2 = !currentstate2;
+  digitalWrite(greenledpin, currentstate2);
+  Serial.println("Motion detected from sensor 1");
+}
